@@ -17,7 +17,8 @@ class CatsDataModule(pl.LightningDataModule):
         self.synthetic_data_dir = os.path.join(data_dir, "synthetic")
         self.transform = transforms.Compose(
             [
-                transforms.ToTensor,
+                transforms.ToTensor(),
+                transforms.Resize((500, 500)),
                 transforms.Normalize(
                     (0.1307,),
                     (0.3081,),
@@ -40,8 +41,7 @@ class CatsDataModule(pl.LightningDataModule):
                 self.train_original_dataset,
                 self.test_dataset,
                 self.val_dataset,
-                self.predict_dataset,
-            ) = random_split(self.original_dataset, [0.7, 0.1, 0.15, 0.05])
+            ) = random_split(self.original_dataset, [0.7, 0.15, 0.15])
             self.train_dataset = ConcatDataset(
                 [self.synthetic_dataset, self.train_original_dataset]
             )
@@ -54,6 +54,3 @@ class CatsDataModule(pl.LightningDataModule):
 
     def test_dataloader(self) -> EVAL_DATALOADERS:
         return DataLoader(self.test_dataset, batch_size=self.batch_size)
-
-    def predict_dataloader(self) -> EVAL_DATALOADERS:
-        return DataLoader(self.predict_dataset, batch_size=self.batch_size)

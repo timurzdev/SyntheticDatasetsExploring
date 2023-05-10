@@ -73,3 +73,8 @@ class ResnetClassifier(pl.LightningModule):
         # perform logging
         self.log("val_loss", loss, on_epoch=True, prog_bar=False, logger=True)
         self.log("val_acc", acc, on_epoch=True, prog_bar=True, logger=True)
+
+    def test_step(self, batch, batch_idx):
+        loss, acc = self._step(batch)
+        self.log("test_loss", loss, on_epoch=True, prog_bar=False, logger=True)
+        self.log("test_acc", acc, on_epoch=True, prog_bar=True, logger=True)
