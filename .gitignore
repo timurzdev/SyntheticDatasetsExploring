@@ -3,3 +3,5 @@ data/original/lion
 data/sythetic/cheetah
 data/sythetic/lion
 env
+data/synthetic/cheetah
+data/synthetic/lion

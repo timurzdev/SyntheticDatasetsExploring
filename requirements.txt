@@ -1,0 +1,4 @@
+aiohttp==3.8.4
+lightning==2.0.2
+pip-chill==1.0.3
+torchvision==0.15.2
