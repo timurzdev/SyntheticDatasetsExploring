@@ -8,7 +8,7 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 
 
-class CatsDataModulel(pl.LightningDataModule):
+class CatsDataModule(pl.LightningDataModule):
     def __init__(self, data_dir: str, batch_size: int = 16) -> None:
         super().__init__()
         self.batch_size = batch_size
