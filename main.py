@@ -23,3 +23,4 @@ if __name__ == "__main__":
     )
     trainer.fit(model=model, datamodule=data_module)
     trainer.test(model=model, datamodule=data_module)
+    trainer.save_checkpoint("./checkpoints/best.pt")
