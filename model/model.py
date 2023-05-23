@@ -1,10 +1,11 @@
-from typing import Any
 import torchvision.models as models
 import lightning.pytorch as pl
 
 import torch.nn as nn
 import torch.optim as optim
 from torchmetrics import Accuracy
+
+from typing import Any
 
 
 def get_resnet(resnet_version: int):
@@ -15,6 +16,7 @@ def get_resnet(resnet_version: int):
         101: models.resnet101,
         152: models.resnet152,
     }
+
     return resnets[resnet_version](pretrained=False, progress=True)
 
 

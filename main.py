@@ -13,11 +13,11 @@ if __name__ == "__main__":
         devices=1,
         callbacks=[
             EarlyStopping(
-                monitor="val_acc",
+                monitor="val_loss",
                 min_delta=0.00,
-                patience=3,
+                patience=2,
                 verbose=False,
-                mode="max",
+                mode="min",
             )
         ],
     )

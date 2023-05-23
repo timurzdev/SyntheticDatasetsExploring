@@ -8,3 +8,5 @@ data/synthetic/lion
 dataset/__pycache__
 lightning_logs
 model/__pycache__
+.idea
+checkpoints/best.pt
