@@ -2,11 +2,12 @@ import lightning.pytorch as pl
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 
 from model import ResnetClassifier
-from dataset import CatsDataModule
+from dataset import CatsDataModule, CatsDataModuleSynth
 
 if __name__ == "__main__":
-    model = ResnetClassifier(2, 18)
-    data_module = CatsDataModule("./data/")
+    model = ResnetClassifier(2, 34)
+    data_module = CatsDataModule("./data/original/")
+    synth_module = CatsDataModuleSynth("./data/synthetic/", samples_count=500)
     trainer = pl.Trainer(
         max_epochs=10,
         accelerator="auto",
@@ -21,6 +22,12 @@ if __name__ == "__main__":
             )
         ],
     )
+    model.train()
+    trainer.fit(model=model, datamodule=synth_module)
+    model.freeze()
+    trainer.test(model=model, datamodule=data_module)
+    model.train()
     trainer.fit(model=model, datamodule=data_module)
+    model.freeze()
     trainer.test(model=model, datamodule=data_module)
     trainer.save_checkpoint("./checkpoints/best.pt")
