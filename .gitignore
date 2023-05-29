@@ -11,3 +11,5 @@ model/__pycache__
 .idea
 checkpoints/best.pt
 venv
+.ipynb_checkpoints
+checkpoints

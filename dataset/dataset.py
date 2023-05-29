@@ -41,11 +41,14 @@ class CatsDataModuleSynth(pl.LightningDataModule):
 
     def train_dataloader(self) -> TRAIN_DATALOADERS:
         return DataLoader(
-            self.train_dataset, batch_size=self.batch_size, sampler=self.sampler
+            self.train_dataset,
+            batch_size=self.batch_size,
+            sampler=self.sampler,
+            num_workers=4,
         )
 
     def val_dataloader(self) -> EVAL_DATALOADERS:
-        return DataLoader(self.val_dataset, batch_size=self.batch_size)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=4)
 
 
 class CatsDataModule(pl.LightningDataModule):
@@ -67,19 +70,17 @@ class CatsDataModule(pl.LightningDataModule):
     def prepare_data(self) -> None:
         self.dataset = ImageFolder(self.path, transform=self.transform)
 
-    def setup(self, stage):
-        if stage == "fit":
-            (
-                self.train_dataset,
-                self.test_dataset,
-                self.val_dataset,
-            ) = random_split(self.dataset, [0.7, 0.15, 0.15])
+        (
+            self.train_dataset,
+            self.test_dataset,
+            self.val_dataset,
+        ) = random_split(self.dataset, [0.7, 0.15, 0.15])
 
     def train_dataloader(self) -> TRAIN_DATALOADERS:
-        return DataLoader(self.train_dataset, batch_size=self.batch_size)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=4)
 
     def val_dataloader(self) -> EVAL_DATALOADERS:
-        return DataLoader(self.val_dataset, batch_size=self.batch_size)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=4)
 
     def test_dataloader(self) -> EVAL_DATALOADERS:
-        return DataLoader(self.test_dataset, batch_size=self.batch_size)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=4)
