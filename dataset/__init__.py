@@ -1,1 +1,1 @@
-from .dataset import CatsDataModule, CatsDataModuleSynth
+from .dataset import CatsDataModule, CatsDataModuleSynth, CatsDataModuleTest

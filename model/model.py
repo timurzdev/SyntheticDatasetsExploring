@@ -29,8 +29,6 @@ class ResnetClassifier(pl.LightningModule):
         lr: float = 1e-3,
     ) -> None:
         super().__init__()
-        self.test_loss = 0
-        self.test_acc = 0
         self.optimizer = optimizer
         self.num_classes = num_classes
         self.model = get_resnet(resnet_version)
@@ -81,6 +79,4 @@ class ResnetClassifier(pl.LightningModule):
     def test_step(self, batch, batch_idx):
         loss, acc = self._step(batch)
         self.log("test_loss", loss, on_epoch=True, prog_bar=False, logger=True)
-        self.test_loss = loss
         self.log("test_acc", acc, on_epoch=True, prog_bar=True, logger=True)
-        self.test_acc = acc

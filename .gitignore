@@ -13,3 +13,7 @@ checkpoints/best.pt
 venv
 .ipynb_checkpoints
 checkpoints
+test
+backup_test/cheetah
+wandb
+log.csv
