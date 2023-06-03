@@ -8,11 +8,13 @@ from torchvision.datasets import ImageFolder
 
 class CatsDataModuleSynth(pl.LightningDataModule):
     def __init__(
-        self, path: str, batch_size: int = 16, samples_count: int = 1000
+        self,
+        path: str,
+        batch_size: int = 16,
     ) -> None:
         super().__init__()
         self.batch_size = batch_size
-        self.samples_count = samples_count
+        self.samples_count = 0
         self.path = path
         self.transform = transforms.Compose(
             [
@@ -78,18 +80,14 @@ class CatsDataModule(pl.LightningDataModule):
 
         (
             self.train_dataset,
-            self.test_dataset,
             self.val_dataset,
-        ) = random_split(self.dataset, [0.7, 0.15, 0.15])
+        ) = random_split(self.dataset, [0.8, 0.2])
 
     def train_dataloader(self) -> TRAIN_DATALOADERS:
         return DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=4)
 
     def val_dataloader(self) -> EVAL_DATALOADERS:
         return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=4)
-
-    def test_dataloader(self) -> EVAL_DATALOADERS:
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=4)
 
 
 class CatsDataModuleTest(pl.LightningDataModule):

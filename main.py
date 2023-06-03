@@ -1,4 +1,5 @@
 import argparse
+from typing import Optional
 
 import torch
 import lightning.pytorch as pl
@@ -41,7 +42,7 @@ def train_synth(num_samples: int, model_number: int, batch_size: int, logger_nam
         logger=logger,
     )
     model = ResnetClassifier(2, model_number, lr=1e-5)
-    data_module = CatsDataModule("./test/", batch_size=batch_size)
+    data_module = CatsDataModuleTest("./test/", batch_size=batch_size)
     synth_module = CatsDataModuleSynth(
         "./data/synthetic/", samples_count=num_samples, batch_size=batch_size
     )
@@ -52,8 +53,11 @@ def train_synth(num_samples: int, model_number: int, batch_size: int, logger_nam
     trainer.save_checkpoint(f"./checkpoints/{logger_name}_best.ckpt")
 
 
-def train_original(
-    num_samples: int, model_number: int, batch_size: int, logger_name: str
+def train(
+    model_number: int,
+    batch_size: int,
+    logger_name: str,
+    mixed_train: bool,
 ):
     logger = WandbLogger(logger_name)
     trainer = pl.Trainer(
@@ -64,19 +68,25 @@ def train_original(
             EarlyStopping(
                 monitor="val_loss",
                 min_delta=0.00,
-                patience=2,
+                patience=5,
                 verbose=False,
                 mode="min",
             )
         ],
         logger=logger,
     )
-    model = ResnetClassifier(2, model_number, lr=1e-5)
-    data_module = CatsDataModule("./test/", batch_size=batch_size)
-    train_module = CatsDataModuleSynth(
-        "./data/original/", samples_count=num_samples, batch_size=batch_size
-    )
+    model = ResnetClassifier(2, model_number, lr=1e-6)
+    data_module = CatsDataModuleTest("./test/", batch_size=batch_size)
+    train_module = CatsDataModule("./data/original/", batch_size=batch_size)
     model.train()
+    if mixed_train:
+        # training on synthetic data first
+        synth_module = CatsDataModuleSynth("./data/synthetic/", batch_size=batch_size)
+        trainer.fit(model=model, datamodule=synth_module)
+        # # freezing backbone
+        for param in list(model.parameters())[:-2]:
+            param.requires_grad = False
+
     trainer.fit(model=model, datamodule=train_module)
     model.eval()
     trainer.test(model=model, datamodule=data_module)
@@ -102,19 +112,27 @@ def predict(model_number: int, batch_size: int, logger_name: str):
 if __name__ == "__main__":
     seed_everything(42)
     parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--train", type=bool, required=True)
-    parser.add_argument("-p", "--predict", type=bool, required=True)
+    parser.add_argument(
+        "--mixed-train", action=argparse.BooleanOptionalAction, default=True
+    )
+    parser.add_argument(
+        "-t", "--train", action=argparse.BooleanOptionalAction, default=False
+    )
+    parser.add_argument(
+        "-p", "--predict", action=argparse.BooleanOptionalAction, default=False
+    )
     parser.add_argument("-n", "--num_samples", type=int, required=True)
     parser.add_argument("-b", "--batch_size", type=int, default=8)
     parser.add_argument("-l", "--logger_name", type=str, required=True)
     parser.add_argument("-m", "--model", type=int, default=101)
     args = parser.parse_args()
+    print(args)
     if args.train:
-        train_original(
-            num_samples=args.num_samples,
+        train(
             model_number=args.model,
             batch_size=args.batch_size,
             logger_name=args.logger_name,
+            mixed_train=args.mixed_train,
         )
     if args.predict:
         predict(
