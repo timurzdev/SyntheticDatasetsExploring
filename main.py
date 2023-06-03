@@ -1,7 +1,5 @@
 import argparse
-from typing import Optional
 
-import torch
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 from lightning.pytorch.loggers import WandbLogger
@@ -24,7 +22,13 @@ def seed_everything(seed: int):
     torch.backends.cudnn.benchmark = True
 
 
-def train_synth(num_samples: int, model_number: int, batch_size: int, logger_name: str):
+def train_synth(
+    num_samples: int,
+    model_number: int,
+    batch_size: int,
+    logger_name: str,
+    pretrained: bool = False,
+):
     logger = WandbLogger(logger_name)
     trainer = pl.Trainer(
         max_epochs=500,
@@ -41,7 +45,7 @@ def train_synth(num_samples: int, model_number: int, batch_size: int, logger_nam
         ],
         logger=logger,
     )
-    model = ResnetClassifier(2, model_number, lr=1e-5)
+    model = ResnetClassifier(2, model_number, lr=1e-6)
     data_module = CatsDataModuleTest("./test/", batch_size=batch_size)
     synth_module = CatsDataModuleSynth(
         "./data/synthetic/", samples_count=num_samples, batch_size=batch_size
@@ -58,6 +62,7 @@ def train(
     batch_size: int,
     logger_name: str,
     mixed_train: bool,
+    pretrained: bool = False,
 ):
     logger = WandbLogger(logger_name)
     trainer = pl.Trainer(
@@ -75,7 +80,7 @@ def train(
         ],
         logger=logger,
     )
-    model = ResnetClassifier(2, model_number, lr=1e-6)
+    model = ResnetClassifier(2, model_number, lr=1e-2)
     data_module = CatsDataModuleTest("./test/", batch_size=batch_size)
     train_module = CatsDataModule("./data/original/", batch_size=batch_size)
     model.train()

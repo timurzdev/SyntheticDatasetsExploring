@@ -8,7 +8,7 @@ from torchmetrics import Accuracy
 from typing import Any
 
 
-def get_resnet(resnet_version: int):
+def get_resnet(resnet_version: int, pretrained: bool):
     resnets = {
         18: models.resnet18,
         34: models.resnet34,
@@ -17,7 +17,7 @@ def get_resnet(resnet_version: int):
         152: models.resnet152,
     }
 
-    return resnets[resnet_version](pretrained=False, progress=True)
+    return resnets[resnet_version](pretrained=pretrained, progress=True)
 
 
 class ResnetClassifier(pl.LightningModule):
@@ -25,13 +25,14 @@ class ResnetClassifier(pl.LightningModule):
         self,
         num_classes: int,
         resnet_version: int,
+        pretrained: bool,
         optimizer=optim.Adam,
         lr: float = 1e-3,
     ) -> None:
         super().__init__()
         self.optimizer = optimizer
         self.num_classes = num_classes
-        self.model = get_resnet(resnet_version)
+        self.model = get_resnet(resnet_version, pretrained)
         self.loss_fn = (
             nn.BCEWithLogitsLoss() if num_classes == 1 else nn.CrossEntropyLoss()
         )
