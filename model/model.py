@@ -42,12 +42,30 @@ class ResnetClassifier(pl.LightningModule):
         )
         linear_size = list(self.model.children())[-1].in_features
         self.model.fc = nn.Linear(linear_size, num_classes)
+        self.save_hyperparameters(logger=False)
 
     def forward(self, x):
         return self.model(x)
 
     def configure_optimizers(self) -> Any:
-        return self.optimizer(self.parameters(), lr=self.lr)
+        optimizer = self.optimizer(self.parameters(), lr=self.lr)
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer,
+            mode="min",
+            factor=0.1,
+            patience=10,
+            threshold=0.0001,
+            threshold_mode="abs",
+        )
+        return (
+            {
+                "optimizer": optimizer,
+                "lr_scheduler": {
+                    "scheduler": scheduler,
+                    "monitor": "val_loss",
+                },
+            },
+        )
 
     def _step(self, batch):
         x, y = batch

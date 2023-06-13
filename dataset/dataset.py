@@ -14,7 +14,7 @@ class CatsDataModuleSynth(pl.LightningDataModule):
     ) -> None:
         super().__init__()
         self.batch_size = batch_size
-        self.samples_count = 0
+        self.samples_count = 1000
         self.path = path
         self.transform = transforms.Compose(
             [
